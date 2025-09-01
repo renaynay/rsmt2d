@@ -317,6 +317,22 @@ func (ds *dataSquare) GetCell(rowIdx uint, colIdx uint) []byte {
 	return cell
 }
 
+func (ds *dataSquare) GetCellInto(rowIdx, colIdx uint, buf []byte) []byte {
+	empty := ds.squareRow[rowIdx][colIdx] == nil
+	if empty {
+		return buf[:0]
+	}
+
+	if cap(buf) < int(ds.shareSize) {
+		buf = make([]byte, ds.shareSize)
+	}
+
+	buf = buf[:ds.shareSize]
+
+	copy(buf, ds.squareRow[rowIdx][colIdx])
+	return buf
+}
+
 // SetCell sets a specific cell. The cell to set must be `nil`. Returns an error
 // if the cell to set is not `nil` or newShare is not the correct size.
 func (ds *dataSquare) SetCell(rowIdx uint, colIdx uint, newShare []byte) error {
